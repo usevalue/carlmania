@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>CARLMANIA!</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
+    integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"
+     integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg="
+     crossorigin=""></script>
+
+     <script src="carlmania.js"></script>
+    
+
+     <style>
+        #map {height: 85vh; z-index: 1}
+        #layout {margin: 0%; height: 100%; width: 100%}
+        #CARLMANIA {font-size: xx-large}
+        #infobox {position: absolute; background-color: white; top: 10vh; left: 10px; z-index: 2; display: none}
+     </style>
+</head>
+
+<body>
+    <div id="infobox">HELPFUL INFO GOES IN HERE!</div>
+<table id="layout">
+
+<tr><th colspan="2" id="CARLMANIA">CARLMANIA!</th></tr>
+<tr>
+    <td><div id="map"></div></td>
+    <td width="20%""><iframe width="100%" height="100%" src="https://www.investigativepost.org/?s=Paladino"></iframe></td>
+</tr>
+
+<tr>
+<td colspan="2" align="center">Data on Carl Paladino's holding in Buffalo is sourced from <a href="https://data.buffalony.gov/dataset/2021-2022-Assessment-Roll/2c7u-hywd">Buffalo's 2021-2022 Tax Assessment Roll</a> and guided by <a href="https://littlesis.org/donate">Little Sis'</a> documentation of <a href="https://littlesis.org/lists/921-carl-paladino-s-llcs/members">Paladino's LLCs</a>.</td>
+</tr>
+
+</table>
+
+
+
+<script>
+    var map = L.map('map', {zoom: 12}).setView([42.897, -78.853]);
+
+    function scramble() {
+        var red = Math.floor(Math.random()*256);
+        var green = Math.floor(Math.random()*256);
+        var blue = Math.floor(Math.random()*256);
+
+        document.getElementById("CARLMANIA").style.color = "rgb("+red+","+green+","+blue+")";
+        document.getElementById("CARLMANIA").style.backgroundColor = "rgb("+(256-red)+","+(256-green)+","+(256-blue)+")";
+    }
+
+    function details(feature) {
+        var thisProperty = feature.sourceTarget.feature.properties;
+        console.log(feature);
+        console.log(thisProperty)
+        horizontal = feature.originalEvent.clientX+"px";
+        vertical = feature.originalEvent.clientY+"px";
+        document.getElementById("infobox").style.display = "inline";
+        document.getElementById("infobox").style.left = horizontal;
+        document.getElementById("infobox").style.top = vertical;
+
+        info = thisProperty["House Number"] + " " + thisProperty.Street +
+            "<br/>" + thisProperty["Prop Class Description"] +
+            "<br/>Owned through " +thisProperty.Owner1
+            + "<br/>Assessed value of $" + thisProperty["Total Value"];
+
+        if(Math.random()>.8) info +="<br/><img src='images/carl"+Math.ceil(Math.random()*5)+".jpg' />";
+        document.getElementById("infobox").innerHTML = info;
+        scramble();
+
+    }
+
+    function hideDetails() {
+        document.getElementById("infobox").style.display = "none";
+    }
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+    L.geoJSON(properties, {onEachFeature: (feature, layer)=>{
+        
+        layer.on({click: details});
+    }}).addTo(map);
+
+    map.on("zoom", hideDetails);
+    map.on("move", hideDetails);
+
+</script>
+
+</body>
+</html>
